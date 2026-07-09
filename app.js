@@ -1,6 +1,18 @@
 const express = require('express');
 const mysql = require('mysql2');
+const multer = require('multer');
 const app = express();
+
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/images/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
 // Create MySQL connection
 const connection = mysql.createConnection({
@@ -65,9 +77,15 @@ app.get('/student/:id', (req, res) => {
 app.get('/addStudent', (req, res) => {
     res.render('addStudent');
 });
-app.post('/addStudent', (req, res) => {
+app.post('/addStudent', upload.single('image'), (req, res) => {
     // Extract student data from the request body
-    const { studentId, name, dob, contact, image } = req.body;
+    const { studentId, name, dob, contact } = req.body;
+    let image;
+    if (req.file) {
+        image = req.file.filename; // Get the uploaded file's filename
+    }else {
+        image = null; // No file uploaded
+    }
     const sql = 'INSERT INTO student (studentId, name, dob, contact, image) VALUES (?, ?, ?, ?, ?)';
     // Insert the new student into the database
     connection.query(sql, [studentId, name, dob, contact, image], (error, results) => {
@@ -102,10 +120,14 @@ app.get('/editStudent/:id', (req, res) => {
     });
 });
 
-app.post('/editStudent/:id', (req, res) => {
+app.post('/editStudent/:id',upload.single('image'), (req, res) => {
     const studentId = req.params.id;
     // Extract student data from the request body
-    const { name, dob, contact, image } = req.body;
+    const { name, dob, contact } = req.body;
+    let image = req.body.currentImage; // Get the current image filename from the form
+    if (req.file) {// Check if a new file was uploaded  
+        image = req.file.filename; // Get the uploaded file's filename
+    }
     const sql = 'UPDATE student SET name = ? , dob = ?, contact = ?, image = ? WHERE studentId = ?';
     // Insert the new student into the database
     connection.query(sql, [name, dob, contact, image, studentId], (error, results) => {

@@ -46,7 +46,7 @@
 
             <div class="card-body">
 
-              <form action="/editStudent/<%= student.studentId %>" method="POST">
+              <form action="/editStudent/<%= student.studentId %>" method="POST"enctype="multipart/form-data">
 
                 <div class="mb-3">
                   <label for="name" class="form-label">
@@ -74,13 +74,7 @@
                     required>
                 </div>
 
-                <div class="mb-3">
-                  <label for="image" class="form-label">
-                    Image URL
-                  </label>
-
-                  <input type="text" class="form-control" id="image" name="image" value="<%= student.image %>" required>
-                </div>
+            
 
                 <div class="mb-3">
                   <label class="form-label">
@@ -88,8 +82,11 @@
                   </label>
 
                   <div class="text-center">
-                    <img src="<%= student.image %>" alt="<%= student.name %>" class="img-fluid rounded border"
-                      style="max-height: 200px;">
+                    <input type="text" name="currentImage" value="<%= student.image %>" readonly><br>
+                    <img src="/images/<%= student.image %>" alt="<%= student.name %>" class="img-fluid rounded border"
+                      style="max-height: 200px;"><br><br>
+                    New Image:<br>
+                    <input type="file" id="image" name="image" accept="image/*" value="<%=student.image%>"><br><br>
                   </div>
                 </div>
 
